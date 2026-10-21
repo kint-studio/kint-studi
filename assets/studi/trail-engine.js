@@ -1,5 +1,5 @@
 import {FluidField} from '../fluid-field.js?v=ui-7';
-import {makeDepth,drawDepth} from './depth-surface.js?v=s3-1';
+import {makeDepth,drawDepth} from './depth-surface.js?v=s4-1';
 // Variant of the main site's trail-engine.js for the pen. What differs from the main site's version:
 // - options maxDpr (main: 1.5 fixed), layout(w,h) for the object rect (main: the vase rect), depthStyle (passed to makeDepth of ./depth-surface.js) and grounded;
 // - the object turns towards the pointer by about 20 degrees horizontally and 10 vertically (main: .075/.035 rad), easing at 3.4/s (main 2.8).

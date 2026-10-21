@@ -1,4 +1,4 @@
-import {SceneEngine,FORMATION_DONE_MS} from './scene-engine.js?v=s3-1';
+import {SceneEngine,FORMATION_DONE_MS} from './scene-engine.js?v=s4-1';
 import {penImage} from './scene-images.js?v=s3-1';
 export {FORMATION_DONE_MS};
 // Where the drawing sits inside the image (fractions 0-1), measured once: the page knows how big the pen will be before the image arrives.

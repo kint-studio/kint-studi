@@ -1,5 +1,5 @@
-import {FormationEngine} from './formation-engine.js?v=s3-1';
-export {FORMATION_DONE_MS} from './formation-engine.js?v=s3-1';
+import {FormationEngine} from './formation-engine.js?v=s4-1';
+export {FORMATION_DONE_MS} from './formation-engine.js?v=s4-1';
 // Variant of the main site's scene-engine.js for the pen. What differs from the main site's version: with grounded false (an object fading out at the bottom) there is no floor, plane or contact shadow, and the foot is not measured; when it is measured, a thumbnail of at most 256 px is enough.
 export const lightDrift=(time,w,reduced)=>reduced?0:Math.round(Math.sin(time/18000)*w*.018*2)/2;
 // A quiet, physical setting; approved pointer fluid and depth remain in TrailEngine.

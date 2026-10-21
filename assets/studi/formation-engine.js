@@ -1,4 +1,4 @@
-import {TrailEngine} from './trail-engine.js?v=s3-1';
+import {TrailEngine} from './trail-engine.js?v=s4-1';
 // Variant of the main site's formation-engine.js for the pen. What differs from the main site's version:
 // - the landing's timeline, in real milliseconds (main: 2100 / 2750 / 2300 scene units at INTRO_SPEED 2): the digits draw the silhouette in 1300 ms, a short pause, then the diagonal wipe replaces them with the object from 1425 ms for 1150 ms, as in the landing.
 export const ASSEMBLY_MS=1300,WIPE_START_MS=1425,WIPE_MS=1150,FORMATION_DONE_MS=WIPE_START_MS+WIPE_MS;

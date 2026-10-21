@@ -4,7 +4,8 @@ export {drawDepth};
 // Everything is built the first time a tilt needs it (drawDepth calls prepare()): the main site's depth and program, then the linear relief uploaded over its texture. Touch screens never tilt the pen, so they never pay for it (the main site computes its per-row relief in the constructor, while the page loads); computers warm it up in idle time, as in the main site.
 export function makeDepth(base,createCanvas,style){if(style?.kind!=='lineare')return makeRowDepth(base,createCanvas);
  const depth={gpu:undefined,prepare(){if(depth.gpu!==undefined)return depth.gpu;depth.gpu=null;const gpu=makeRowDepth(base,createCanvas).prepare();
-  if(gpu){const {w,h,data}=linearRelief(base,createCanvas,style),gl=gpu.gl;gl.activeTexture(gl.TEXTURE1);gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);gl.texImage2D(gl.TEXTURE_2D,0,gl.R8,w,h,0,gl.RED,gl.UNSIGNED_BYTE,data);}
+  // If the linear relief cannot be computed or uploaded, the main site's row texture stays: drawDepth never sees the error.
+  if(gpu)try{const {w,h,data}=linearRelief(base,createCanvas,style),gl=gpu.gl;gl.activeTexture(gl.TEXTURE1);gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);gl.texImage2D(gl.TEXTURE_2D,0,gl.R8,w,h,0,gl.RED,gl.UNSIGNED_BYTE,data);}catch(e){console.warn('linear relief unavailable, row relief kept',e);}
   return depth.gpu=gpu;}};
  if(!globalThis.matchMedia?.('(hover: none)').matches)(globalThis.requestIdleCallback||(cb=>setTimeout(cb,1)))(()=>depth.prepare(),{timeout:3000});
  return depth;}

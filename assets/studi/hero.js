@@ -1,6 +1,6 @@
 import {IdleCursor} from '../idle-cursor.js?v=36';
 import {loadMaterial as loadSatinMaterial} from './material.js?v=s3-1';
-import {PenScene,FORMATION_DONE_MS,layout,imageUrl} from './pen-scene.js?v=s3-1';
+import {PenScene,FORMATION_DONE_MS,layout,imageUrl} from './pen-scene.js?v=s4-1';
 // Resolves on load, then waits for decode() for at most 500 ms: in a hidden tab decode() may never settle.
 // Then, where the browser can, the image becomes an ImageBitmap that stays decoded: an <img> is decoded again on the main thread each time a canvas draws it at a new size (two decodes of 10 ms, unthrottled, while the scene starts).
 export const decoded=src=>new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>resolve(image);image.onerror=reject;image.src=src;}).then(async image=>{await Promise.race([image.decode().catch(()=>{}),new Promise(r=>setTimeout(r,500))]);

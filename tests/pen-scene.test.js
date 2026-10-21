@@ -72,3 +72,17 @@ test('makeDepth lineare: prepare() carica il rilievo lineare sopra la texture de
   const last=uploads.at(-1);assert.equal(uploads.length,2,'texture del principale, poi quella lineare');
   assert.deepEqual(last[8],linearRelief(base,make,{gain:2,cap:.05}).data);}
  finally{globalThis.matchMedia=saved;}});
+// Se il rilievo lineare non si può calcolare o caricare, prepare() non lancia: resta la texture a righe del principale e la console avvisa.
+test('makeDepth lineare: un errore del rilievo lineare non esce da prepare() e lascia la texture del principale',()=>{
+ const saved={matchMedia:globalThis.matchMedia,warn:console.warn};globalThis.matchMedia=()=>({matches:true});
+ const warned=[];console.warn=(...a)=>warned.push(a);
+ const {base,make}=bar();
+ try{for(const fail of ['upload','relief']){let uploads=0;warned.length=0;
+  const gl=new Proxy({},{get:(t,k)=>k==='texImage2D'?()=>{if(++uploads===2&&fail==='upload')throw new Error('upload');}:k==='getShaderParameter'||k==='getProgramParameter'?()=>true:typeof k==='string'&&/^[A-Z_0-9]+$/.test(k)?k:()=>({})});
+  let reads=0;
+  const canvas=()=>{const c=make();const get=c.getContext.bind(c);c.getContext=(type,o)=>{if(type==='webgl2')return gl;const x=get(type,o);if(fail==='relief'&&x&&++reads>1){x.getImageData=()=>{throw new Error('relief');};}return x;};return c;};
+  const depth=makeDepth(base,canvas,{kind:'lineare',gain:2,cap:.05});let gpu;
+  assert.doesNotThrow(()=>{gpu=depth.prepare();},fail);
+  assert.ok(gpu&&gpu.gl===gl,`${fail}: resta il programma con la texture del principale`);assert.equal(depth.prepare(),gpu,`${fail}: preparato una volta sola`);
+  assert.equal(warned.length,1,`${fail}: un avviso in console`);}}
+ finally{globalThis.matchMedia=saved.matchMedia;console.warn=saved.warn;}});
