@@ -12,9 +12,6 @@ const MACHINE=['ai/studi/index.html','en/ai/studi/index.html','fr/ai/studi/index
 const walk=d=>readdirSync(d,{withFileTypes:true}).flatMap(e=>e.isDirectory()?walk(join(d,e.name)):[join(d,e.name)]);
 const withBuild=async(fn,opts)=>{const out=mkdtempSync(join(tmpdir(),'kint-studi-build-'));try{const r=await buildSite(out,opts);await fn(out,r);}finally{rmSync(out,{recursive:true,force:true});}};
 const read=(out,f)=>readFileSync(join(out,f),'utf8');
-// La scena della penna (hero.js, pen-scene.js e material-worker.js) arriva dopo lo scheletro: finché manca, i test che la riguardano sono saltati.
-const SCENE=existsSync(join(root,'assets/studi/hero.js'))?false:'scena della penna non ancora presente';
-const WORKER=existsSync(join(root,'assets/studi/material-worker.js'))?false:'worker del materiale non ancora presente';
 test('build: gli 8 indirizzi, la radice, 404, _headers e _redirects esistono',()=>withBuild(out=>{
  for(const f of [...HUMAN,...MACHINE,'index.html','404.html','_headers','_redirects','robots.txt','sitemap.xml','favicon.ico','apple-touch-icon.png','assets/og-kint.jpg'])assert.ok(existsSync(join(out,f)),f);
 }));
@@ -32,16 +29,16 @@ test('build: le pagine Machine e gli asset condivisi sono copiati invariati',()=
  for(const f of ['assets/machine.css','assets/mode-switch.js','assets/mode-switch.css','assets/geist-sub.woff2'])assert.deepEqual(readFileSync(join(out,f)),readFileSync(join(root,f)),f);
  const assets=readdirSync(join(out,'assets/studi'));
  for(const f of ['landing.js','hero.js','material.js','material-worker.js'])assert.ok(!assets.includes(f),`${f} è già nel bundle`);
- if(!SCENE)assert.ok(assets.some(f=>f.endsWith('.webp')));
+ assert.ok(assets.some(f=>f.endsWith('.webp')));
  const list=assetsToPublish(root);assert.ok(list.includes('assets/mode-switch.js')&&!list.includes('assets/studi/landing.js'));
 }));
-test('build: ogni immagine della penna, anche quella con percorso a template, è nel dist',{skip:SCENE},()=>withBuild((out,r)=>{
+test('build: ogni immagine della penna, anche quella con percorso a template, è nel dist',()=>withBuild((out,r)=>{
  const bundle=read(out,r.js);assert.match(bundle,/\/assets\/studi\/stilografica-\$\{/,'percorso a template delle immagini nel bundle');
  for(const f of readdirSync(join(root,'assets/studi')).filter(f=>f.endsWith('.webp')))assert.ok(existsSync(join(out,'assets/studi',f)),f);
  for(const m of bundle.matchAll(/\/assets\/[\w./-]+\.(?:webp|woff2|jpg)/g))assert.ok(existsSync(join(out,m[0])),m[0]);
 }));
 // Nel dist finiscono solo le immagini della penna che la pagina può chiedere: imageUrl su tutte le finestre e risoluzioni plausibili, più il preload.
-test('build: nel dist solo le immagini stilografica-* referenziate',{skip:SCENE},async()=>{
+test('build: nel dist solo le immagini stilografica-* referenziate',async()=>{
  const {layout,imageUrl}=await import('../assets/studi/pen-scene.js');
  const used=new Set();
  for(let w=320;w<=3840;w+=40)for(let h=480;h<=2160;h+=40)for(const touch of [false,true])for(const dpr of [1,1.25,1.5,2,2.625,3])for(const kind of ['ceramic','kintsugi'])used.add(imageUrl(kind,layout(w,h).w,{touch,dpr}).replace(/^\//,''));
@@ -51,7 +48,7 @@ test('build: nel dist solo le immagini stilografica-* referenziate',{skip:SCENE}
   assert.deepEqual(published,[...used].sort(),'immagini stilografica-* nel dist = quelle referenziate');
  });
 });
-test('build: il worker del materiale è un bundle a parte con hash e il bundle lo richiama per nome',{skip:WORKER},()=>withBuild((out,r)=>{
+test('build: il worker del materiale è un bundle a parte con hash e il bundle lo richiama per nome',()=>withBuild((out,r)=>{
  const bundle=read(out,r.js);
  for(const name of ['material-worker']){const m=bundle.match(new RegExp('new URL\\("\\./('+name+'\\.[0-9a-f]{10}\\.js)"'));
   assert.ok(m,`URL del worker ${name} con hash nel bundle`);assert.ok(existsSync(join(out,'assets/studi',m[1])),m[1]);
